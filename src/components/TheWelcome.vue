@@ -1,12 +1,27 @@
 <script setup>
+import ListItem from "./ListItem.vue";
 </script>
 
 <template>
   <div class="h-[89vh] pb-8 px-8 flex text-white gap-5">
     <div
-      class="innerDiv w-1/4 h-full rounded-xl text-white flex flex-col items-center p-3 border-2 border-neutral-700"
+      class="innerDiv w-1/4 h-full rounded-xl text-white flex flex-col gap-4 items-center p-3 border-2 border-neutral-700 relative"
     >
-      <p>Saved Places</p>
+      <p class="text-xl pb-4">Saved Places</p>
+      <div
+        class="w-full h-full flex flex-col items-center justify-between pb-10"
+      >
+        <ListItem />
+        <ListItem />
+        <ListItem />
+        <ListItem />
+        <ListItem />
+      </div>
+      <div
+        class="innerDiv1 p-2 rounded-bl-xl rounded-br-xl bg-transparent absolute flex items-center justify-center bottom-0 w-full"
+      >
+        Add New Places
+      </div>
     </div>
     <div class="flex flex-col gap-8 w-full">
       <div class="flex gap-5 items-center">
@@ -64,7 +79,12 @@
 .innerDiv {
   background: rgba(0, 0, 0, 0.35);
   -webkit-backdrop-filter: blur(10px);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(2px);
+}
+.innerDiv1 {
+  background: rgba(0, 0, 0, 0);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(2px);
 }
 i {
   font-size: 1.5rem;
