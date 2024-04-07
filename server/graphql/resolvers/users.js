@@ -1,5 +1,5 @@
 const User = require('../../models/User')
-const { ApolloError } = require('./users')
+const { ApolloError } = require('apollo-server-errors')
 const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 
@@ -40,7 +40,7 @@ module.exports = {
             if (user && (await bcrypt.compare(password, user.password))) {
                 // creating new token
                 const token = jwt.sign(
-                    { user_id: newUser._id, email }, "WRONG_TOKEN",
+                    { user_id: user._id, email }, "WRONG_TOKEN",
                     {
                         expiresIn: "2h"
                     }
