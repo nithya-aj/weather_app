@@ -3,7 +3,7 @@ import { HttpLink } from "apollo-link-http";
 import { ApolloLink, concat } from "apollo-link";
 import { InMemoryCache } from "apollo-cache-inmemory";
 
-const httpLink = new HttpLink({ uri: import.meta.env.VUE_APP_URL });
+const httpLink = new HttpLink({ uri: 'http://localhost:5000/' });
 
 const authMiddleware = new ApolloLink((operation, forward) => {
     const token = localStorage.getItem('token');
