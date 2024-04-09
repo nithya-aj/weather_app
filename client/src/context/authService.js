@@ -7,7 +7,6 @@ const authServiceSymbol = Symbol();
 
 export function createAuthService() {
     const token = localStorage.getItem(TOKEN_KEY);
-    // const token = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c';
 
 
     const initialState = {
@@ -28,13 +27,6 @@ export function createAuthService() {
 
     const state = reactive(initialState);
 
-    function login(token) {
-        const decodedToken = jwtDecode(token);
-        state.user = decodedToken;
-        state.isAuthenticated = true;
-        localStorage.setItem(TOKEN_KEY, token);
-    }
-
     function logout() {
         state.user = null;
         state.isAuthenticated = false;
@@ -43,7 +35,6 @@ export function createAuthService() {
 
     return {
         state,
-        login,
         logout,
     };
 }
