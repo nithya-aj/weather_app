@@ -1,7 +1,7 @@
 <template>
   <div class="flex items-center justify-center flex-col h-[88%]">
     <div
-      class="signIn-form flex flex-col items-center justify-evenly rounded-3xl h-2/3 w-1/3 border-2 border-neutral-700 "
+      class="signIn-form flex flex-col items-center justify-evenly rounded-3xl h-2/3 w-1/3 border-2 border-neutral-700"
     >
       <h1 class="text-4xl text-white font-bold">Sign In</h1>
       <input
@@ -18,6 +18,25 @@
     </div>
   </div>
 </template>
+
+<script>
+import { useAuthService } from "../context/authService";
+export default {
+  setup() {
+    const { login, logout } = useAuthService();
+    function handleLogin() {
+      // TODO: Implement authentication logic here.
+    }
+    function handleLogout() {
+      logout();
+    }
+    return {
+      handleLogin,
+      handleLogout,
+    };
+  },
+};
+</script>
 
 <style scoped>
 .signIn-form {
