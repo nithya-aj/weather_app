@@ -3,15 +3,16 @@ import { jwtDecode } from 'jwt-decode';
 
 const TOKEN_KEY = 'token';
 
-const authServiceSymbol = Symbol();
+export const authServiceSymbol = Symbol();
 
 export function createAuthService() {
     const token = localStorage.getItem(TOKEN_KEY);
+    console.log(token, 'token')
 
 
     const initialState = {
         user: null,
-        isAuthenticated: false,
+        isAuthenticated: !!token,
     };
 
     if (token) {
@@ -19,13 +20,18 @@ export function createAuthService() {
         console.log(decodedToken, 'decodedToken.....')
         if (decodedToken && decodedToken.exp * 1000 > Date.now()) {
             initialState.user = decodedToken;
-            initialState.isAuthenticated = true;
         } else {
             localStorage.removeItem(TOKEN_KEY);
         }
     }
 
     const state = reactive(initialState);
+
+    function login(token) {
+        state.user = jwtDecode(token)
+        state.isAuthenticated = true
+        localStorage.setItem(TOKEN_KEY, token);
+    }
 
     function logout() {
         state.user = null;
@@ -35,13 +41,11 @@ export function createAuthService() {
 
     return {
         state,
-        logout,
+        login,
+        logout
     };
 }
 
-export function provideAuthService() {
-    provide(authServiceSymbol, createAuthService());
-}
 
 export function useAuthService() {
     const authService = inject(authServiceSymbol);
@@ -49,4 +53,14 @@ export function useAuthService() {
         throw new Error('AuthService is not provided.');
     }
     return authService;
+}
+
+export function provideAuthService() {
+    return {
+        setup() {
+            const authService = createAuthService();
+            provide(authServiceSymbol, authService);
+            return { authService };
+        },
+    };
 }

@@ -5,10 +5,14 @@ import router from './router'
 import 'primeicons/primeicons.css'
 import { DefaultApolloClient } from '@vue/apollo-composable'
 import { apolloClient } from './apolloClient'
-import { provideAuthService } from './context/authService'
+import { authServiceSymbol, provideAuthService } from './context/authService'
 
 const app = createApp(App)
-provideAuthService()
+
+const { setup } = provideAuthService();
+const authService = setup();
+
+app.provide(authServiceSymbol, authService);
 app.provide(DefaultApolloClient, apolloClient)
 
 app.use(router)
