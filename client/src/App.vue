@@ -28,11 +28,11 @@
         <i class="pi pi-search"></i>
       </p>
       <p
+        @click="logout"
         class="p-3 h-10 rounded-3xl flex items-center justify-center signInBtn shadow cursor-pointer text-sm border-2 border-neutral-700"
       >
-        {{ username }}
+        Logout
       </p>
-      <button @click="logout">Logout</button>
     </header>
     <RouterView />
   </div>
@@ -42,14 +42,12 @@
 import { useAuthService } from "../src/context/authService";
 export default {
   setup() {
-    const username = localStorage.getItem("username")?.toUpperCase();
     const authService = useAuthService();
     const logout = () => {
       authService.authService.logout();
-      localStorage.removeItem("username");
     };
     console.log(authService, "authService");
-    return { authService, username, logout };
+    return { authService, logout };
   },
 };
 </script>

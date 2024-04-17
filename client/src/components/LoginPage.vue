@@ -58,7 +58,6 @@ export default {
         });
         console.log(data.loginUser, "login_user_data");
         authService.authService.login(data.loginUser.token);
-        localStorage.setItem("username", data.loginUser.username);
         router.push({ name: "home" });
       } catch (error) {
         console.error("Error logging in:", error);

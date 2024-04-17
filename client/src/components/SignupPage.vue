@@ -68,12 +68,11 @@ export default {
             password: password.value,
           },
         });
-        console.log(data.registerUser); 
+        console.log(data.registerUser);
         username.value = "";
         email.value = "";
         password.value = "";
         authService.authService.login(data.registerUser.token);
-        localStorage.setItem("username", data.registerUser.username);
         router.push({ name: "home" });
       } catch (error) {
         console.error("Error registering user:", error);
