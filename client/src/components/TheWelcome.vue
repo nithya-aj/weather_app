@@ -1,7 +1,3 @@
-<script setup>
-import ListItem from "./ListItem.vue";
-</script>
-
 <template>
   <div class="h-[89vh] pb-8 px-8 flex text-white gap-5">
     <div
@@ -26,54 +22,127 @@ import ListItem from "./ListItem.vue";
     <div class="flex flex-col gap-8 w-full">
       <div class="flex gap-5 items-center">
         <i class="pi pi-map-marker pt-2"></i>
-        <p class="text-3xl">Arattupuzha</p>
-        <p class="text-2xl text-neutral-300">( Wed, March 21 )</p>
+        <p class="text-3xl">{{ location }}</p>
+        <p class="text-2xl text-neutral-300">({{ currentDate }} )</p>
       </div>
-      <p class="text-7xl ml-6">18°</p>
+      <p class="text-7xl ml-6">{{ currentTemp }}°</p>
       <p class="text-6xl pt-2 ml-6 text-neutral-400">
-        Stormy <br />
-        with partial clouds
+        {{ mainWeather }} <br />
+        {{ currentWeather }}
       </p>
       <div class="flex justify-between pt-4 ml-6 pr-6 h-full">
-        <div class="flex flex-col items-center justify-between">
-          <p>Monday</p>
+        <div
+          v-for="forecast in forecastData"
+          :key="forecast.date"
+          class="flex flex-col items-center justify-between"
+        >
+          <p>{{ forecast.date }}</p>
           <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Tuesday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Wednesday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Thursday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-100"></p>
-          <p class="text-3xl opacity-100">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Friday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Saturday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
-        </div>
-        <div class="flex flex-col items-center justify-between">
-          <p>Sunday</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">32°</p>
+          <p class="text-3xl opacity-50">{{ forecast.temp }}°</p>
         </div>
       </div>
     </div>
   </div>
 </template>
+
+<script>
+import ListItem from "./ListItem.vue";
+import { ref, onMounted } from "vue";
+import axios from "axios";
+export default {
+  setup() {
+    const location = ref("");
+    const currentDate = ref("");
+    const currentTemp = ref("");
+    const currentWeather = ref("");
+    const mainWeather = ref("");
+    const forecastData = ref([]);
+
+    onMounted(() => {
+      getCurrentLocation();
+    });
+
+    const getCurrentLocation = () => {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition((position) => {
+          const { latitude, longitude } = position.coords;
+          getWeatherData(latitude, longitude);
+        });
+      } else {
+        console.error("Geolocation is not supported by this browser.");
+      }
+    };
+
+    const getWeatherData = async (latitude, longitude) => {
+      const apiKey = "251b3427c44c68ccefaeb2036fe949de";
+      const currentUrl = `https://api.openweathermap.org/data/2.5/weather?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+      const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+
+      try {
+        // formatting current data
+        const currentDateObj = new Date();
+        const dayOfWeek = currentDateObj.toLocaleString("en", {
+          weekday: "short",
+        });
+        const monthName = currentDateObj.toLocaleString("en", {
+          month: "short",
+        });
+        const dayOfmonth = currentDateObj.getDate();
+
+        // Fetch current weather data
+        const currentResponse = await axios.get(currentUrl);
+        const { data: currentData } = currentResponse;
+
+        // Fetch forecast data
+        const forecastResponse = await axios.get(forecastUrl);
+        const { data: forecastData } = forecastResponse;
+
+        location.value = currentData.name;
+        currentDate.value = `${dayOfWeek}, ${monthName} ${dayOfmonth}`;
+        currentTemp.value = Math.round(currentData.main.temp);
+        currentWeather.value = currentData.weather[0].description;
+        mainWeather.value = currentData.weather[0].main;
+        parseForecastData(forecastData.list);
+      } catch (error) {
+        console.error("Error fetching weather data:", error);
+      }
+    };
+    const parseForecastData = (forecastList) => {
+      // Clear existing forecast data
+      forecastData.value = [];
+
+      // Parse and store forecast data for the next 7 days
+      const currentDate = new Date();
+      for (const forecast of forecastList) {
+        const forecastDate = new Date(forecast.dt * 1000);
+        if (forecastDate.getDate() !== currentDate.getDate()) {
+          forecastData.value.push({
+            date: forecastDate.toLocaleString("en", {
+              weekday: "long",
+            }),
+            temp: Math.round(forecast.main.temp),
+            weather: forecast.weather[0].description,
+          });
+        }
+        if (forecastData.value.length === 7) {
+          break;
+        }
+      }
+    };
+    return {
+      location,
+      currentTemp,
+      currentWeather,
+      mainWeather,
+      forecastData,
+      currentDate,
+    };
+  },
+  components: {
+    ListItem,
+  },
+};
+</script>
 
 <style scoped>
 .innerDiv {
