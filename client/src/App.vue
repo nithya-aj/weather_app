@@ -46,6 +46,7 @@ export default {
     const authService = useAuthService();
     const logout = () => {
       authService.authService.logout();
+      localStorage.removeItem("username");
     };
     console.log(authService, "authService");
     return { authService, username, logout };

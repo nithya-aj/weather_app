@@ -33,6 +33,12 @@ export function createAuthService() {
         localStorage.setItem(TOKEN_KEY, token);
     }
 
+    function signUP(token) {
+        state.user = jwtDecode(token)
+        state.isAuthenticated = true
+        localStorage.setItem(TOKEN_KEY, token);
+    }
+
     function logout() {
         state.user = null;
         state.isAuthenticated = false;
@@ -42,6 +48,7 @@ export function createAuthService() {
     return {
         state,
         login,
+        signUP,
         logout
     };
 }

@@ -37,6 +37,7 @@ import { ref } from "vue";
 import { useMutation } from "@vue/apollo-composable";
 import gql from "graphql-tag";
 import router from "../router/index";
+import { useAuthService } from "../context/authService";
 
 const REGISTER_USER = gql`
   mutation RegisterUser($registerInput: RegisterInput!) {
@@ -56,6 +57,7 @@ export default {
     const password = ref("");
 
     const { mutate: register } = useMutation(REGISTER_USER);
+    const authService = useAuthService();
 
     const registerUser = async () => {
       try {
@@ -66,11 +68,12 @@ export default {
             password: password.value,
           },
         });
-        console.log(data.registerUser); // Handle response
+        console.log(data.registerUser); 
         username.value = "";
         email.value = "";
         password.value = "";
-        localStorage.setItem("token", data.registerUser.token);
+        authService.authService.login(data.registerUser.token);
+        localStorage.setItem("username", data.registerUser.username);
         router.push({ name: "home" });
       } catch (error) {
         console.error("Error registering user:", error);
