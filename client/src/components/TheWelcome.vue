@@ -37,8 +37,20 @@
           class="flex flex-col items-center justify-between"
         >
           <p>{{ forecast.date }}</p>
-          <p class="border border-white h-2/3 border-dashed opacity-25"></p>
-          <p class="text-3xl opacity-50">{{ forecast.temp }}°</p>
+          <p
+            :class="[
+              'border border-white h-2/3 border-dashed',
+              isToday(forecast.date) ? 'opacity-100' : 'opacity-25',
+            ]"
+          ></p>
+          <p
+            :class="[
+              'text-3xl',
+              isToday(forecast.date) ? 'opacity-100' : 'opacity-50',
+            ]"
+          >
+            {{ forecast.temp }}°
+          </p>
         </div>
       </div>
     </div>
@@ -62,9 +74,9 @@ export default {
       getCurrentLocation();
     });
 
-    const getCurrentLocation = () => {
+    const getCurrentLocation = async () => {
       if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((position) => {
+        navigator.geolocation.getCurrentPosition(async (position) => {
           const { latitude, longitude } = position.coords;
           getWeatherData(latitude, longitude);
         });
@@ -79,7 +91,14 @@ export default {
       const forecastUrl = `https://api.openweathermap.org/data/2.5/forecast?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
 
       try {
-        // formatting current data
+        // Fetch current weather data
+        const currentResponse = await axios.get(currentUrl);
+        const { data: currentData } = currentResponse;
+
+        // Fetch forecast data
+        const forecastResponse = await axios.get(forecastUrl);
+        const { data: forecastData } = forecastResponse;
+
         const currentDateObj = new Date();
         const dayOfWeek = currentDateObj.toLocaleString("en", {
           weekday: "short",
@@ -88,14 +107,6 @@ export default {
           month: "short",
         });
         const dayOfmonth = currentDateObj.getDate();
-
-        // Fetch current weather data
-        const currentResponse = await axios.get(currentUrl);
-        const { data: currentData } = currentResponse;
-
-        // Fetch forecast data
-        const forecastResponse = await axios.get(forecastUrl);
-        const { data: forecastData } = forecastResponse;
 
         location.value = currentData.name;
         currentDate.value = `${dayOfWeek}, ${monthName} ${dayOfmonth}`;
@@ -139,6 +150,13 @@ export default {
       forecastData,
       currentDate,
     };
+  },
+  methods: {
+    isToday(dayOfWeek) {
+      const today = new Date();
+      const todayDayOfWeek = today.toLocaleString("en", { weekday: "long" });
+      return todayDayOfWeek === dayOfWeek;
+    },
   },
   components: {
     ListItem,
