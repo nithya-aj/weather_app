@@ -107,15 +107,15 @@ export default {
         console.error("Error fetching weather data:", error);
       }
     };
-    const parseForecastData = (forecastList) => {
-      // Clear existing forecast data
-      forecastData.value = [];
 
-      // Parse and store forecast data for the next 7 days
-      const currentDate = new Date();
+    const parseForecastData = (forecastList) => {
+      forecastData.value = [];
+      let lastDate = null;
+
       for (const forecast of forecastList) {
         const forecastDate = new Date(forecast.dt * 1000);
-        if (forecastDate.getDate() !== currentDate.getDate()) {
+
+        if (!lastDate || forecastDate.getDate() !== lastDate.getDate()) {
           forecastData.value.push({
             date: forecastDate.toLocaleString("en", {
               weekday: "long",
@@ -123,12 +123,14 @@ export default {
             temp: Math.round(forecast.main.temp),
             weather: forecast.weather[0].description,
           });
+          lastDate = forecastDate;
         }
         if (forecastData.value.length === 7) {
           break;
         }
       }
     };
+
     return {
       location,
       currentTemp,
