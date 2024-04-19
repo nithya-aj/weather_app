@@ -5,34 +5,69 @@
     >
       <h1 class="text-4xl text-white font-bold">Sign In</h1>
       <input
+        v-model="email"
         class="outline-none p-3 rounded-3xl pl-5 bg-transparent border border-gray-400 text-white w-2/3"
         type="text"
         placeholder="Email"
       />
       <input
+        v-model="password"
         class="outline-none p-3 rounded-3xl pl-5 bg-transparent border border-gray-400 text-white w-2/3"
         type="password"
         placeholder="Password"
       />
-      <button class="text-white font-semibold text-xl pt-4">SignIn</button>
+      <button @click="loginUser" class="text-white font-semibold text-xl pt-4">
+        SignIn
+      </button>
     </div>
   </div>
 </template>
 
 <script>
+import { ref } from "vue";
+import { useMutation } from "@vue/apollo-composable";
+import gql from "graphql-tag";
+import router from "../router/index";
 import { useAuthService } from "../context/authService";
+
+const LOGIN_USER = gql`
+  mutation LoginUser($loginInput: LoginInput) {
+    loginUser(loginInput: $loginInput) {
+      username
+      email
+      password
+      token
+    }
+  }
+`;
+
 export default {
   setup() {
-    const { login, logout } = useAuthService();
-    function handleLogin() {
-      // TODO: Implement authentication logic here.
-    }
-    function handleLogout() {
-      logout();
-    }
+    const email = ref("");
+    const password = ref("");
+    const { mutate: login } = useMutation(LOGIN_USER);
+    const authService = useAuthService();
+
+    const loginUser = async () => {
+      try {
+        const { data } = await login({
+          loginInput: {
+            email: email.value,
+            password: password.value,
+          },
+        });
+        console.log(data.loginUser, "login_user_data");
+        authService.authService.login(data.loginUser.token);
+        router.push({ name: "home" });
+      } catch (error) {
+        console.error("Error logging in:", error);
+      }
+    };
+
     return {
-      handleLogin,
-      handleLogout,
+      email,
+      password,
+      loginUser,
     };
   },
 };
