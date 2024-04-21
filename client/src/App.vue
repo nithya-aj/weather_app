@@ -23,8 +23,9 @@
     <!-- if user is logged in  -->
     <header v-else class="flex justify-end gap-4 p-4 text-white">
       <p
-        class="p-3 h-10 rounded-full flex items-center justify-center signInBtn shadow cursor-pointer border-2 border-neutral-700"
+        class="p-3 h-10 rounded-full gap-3 flex items-center justify-center signInBtn shadow cursor-pointer border-2 border-neutral-700"
       >
+        <input type="text" class="bg-transparent outline-none" />
         <i class="pi pi-search"></i>
       </p>
       <p
